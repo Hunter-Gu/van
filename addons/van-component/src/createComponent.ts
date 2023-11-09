@@ -1,13 +1,13 @@
 import { ChildDom } from 'vanjs-core';
-import { getCurrentNode, setCurrentNode } from './currentNode';
+import { _getCurrentNode, _setCurrentNode } from './currentNode';
 import { FC, Node, Props } from './types';
 
-export function createComponent<T extends Props>(
-  fn: FC<T>,
+export function createComponent<T extends Props, Children = ChildDom>(
+  fn: FC<T, Children>,
   { name }: { name?: string } = {}
 ) {
-  const Component = (props: T, children?: ChildDom) => {
-    const current = getCurrentNode();
+  const Component = (props?: T, children?: Children) => {
+    const current = _getCurrentNode();
     const node: Node = {
       name: name || fn.name || 'Anonymous',
       isRoot: !current,
@@ -20,13 +20,13 @@ export function createComponent<T extends Props>(
       node.parent = current;
     }
 
-    setCurrentNode(node);
+    _setCurrentNode(node);
 
-    const result = fn(props, children);
+    const dom = fn(props || ({} as T), children);
 
-    setCurrentNode(node.parent);
+    _setCurrentNode(node.parent);
 
-    return result;
+    return dom;
   };
 
   return Component;
